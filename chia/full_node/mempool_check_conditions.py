@@ -128,13 +128,13 @@ def mempool_assert_my_amount(condition: ConditionWithArgs, unspent: CoinRecord) 
     return None
 
 
-def get_name_puzzle_conditions(generator: BlockGenerator, safe_mode: bool) -> NPCResult:
+def get_name_puzzle_conditions(generator: BlockGenerator, max_cost: int, safe_mode: bool) -> NPCResult:
     try:
         block_program, block_program_args = setup_generator_args(generator)
         if safe_mode:
-            cost, result = GENERATOR_MOD.run_safe_with_cost(block_program, block_program_args)
+            cost, result = GENERATOR_MOD.run_safe_with_cost(max_cost, block_program, block_program_args)
         else:
-            cost, result = GENERATOR_MOD.run_with_cost(block_program, block_program_args)
+            cost, result = GENERATOR_MOD.run_with_cost(max_cost, block_program, block_program_args)
         npc_list: List[NPC] = []
         opcodes: Set[bytes] = set(item.value for item in ConditionOpcode)
 
@@ -166,7 +166,7 @@ def get_name_puzzle_conditions(generator: BlockGenerator, safe_mode: bool) -> NP
         return NPCResult(uint16(Err.GENERATOR_RUNTIME_ERROR.value), [], uint64(0))
 
 
-def get_puzzle_and_solution_for_coin(generator: BlockGenerator, coin_name: bytes):
+def get_puzzle_and_solution_for_coin(generator: BlockGenerator, coin_name: bytes, max_cost: int):
     try:
         block_program = generator.program
         if not generator.generator_args:
@@ -174,7 +174,9 @@ def get_puzzle_and_solution_for_coin(generator: BlockGenerator, coin_name: bytes
         else:
             block_program_args = Program.from_bytes(bytes(create_generator_args(generator.generator_refs())))
 
-        cost, result = GENERATOR_FOR_SINGLE_COIN_MOD.run_with_cost(block_program, block_program_args, coin_name)
+        cost, result = GENERATOR_FOR_SINGLE_COIN_MOD.run_with_cost(
+            max_cost, block_program, block_program_args, coin_name
+        )
         puzzle = result.first()
         solution = result.rest().first()
         return None, puzzle, solution
