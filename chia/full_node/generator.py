@@ -22,9 +22,7 @@ log = logging.getLogger(__name__)
 def create_block_generator(
     generator: SerializedProgram,
     block_heights_list: List[uint32],
-    generator_block_cache: GeneratorBlockCacheInterface,
-    start,
-    end,
+    generator_block_cache: GeneratorBlockCacheInterface
 ) -> Optional[BlockGenerator]:
     """ `create_block_generator` will returns None if it fails to look up any referenced block """
     generator_arg_list: List[GeneratorArg] = []
@@ -33,7 +31,7 @@ def create_block_generator(
         if previous_generator is None:
             log.error(f"Failed to look up generator for block {i}. Ref List: {block_heights_list}")
             return None
-        generator_arg_list.append(GeneratorArg(i, previous_generator, start, end))
+        generator_arg_list.append(GeneratorArg(i, previous_generator))
     return BlockGenerator(generator, generator_arg_list)
 
 
