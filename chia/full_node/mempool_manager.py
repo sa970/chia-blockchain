@@ -86,7 +86,7 @@ class MempoolManager:
         if (
             self.peak is None
             or self.peak.header_hash != peak_header_hash
-            or self.peak.height <= self.constants.INITIAL_FREEZE_PERIOD
+            or int(time.time()) <= self.constants.INITIAL_FREEZE_END_TIMESTAMP
         ):
             return None
 
